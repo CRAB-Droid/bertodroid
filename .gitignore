@@ -1,0 +1,17 @@
+.DS_Store
+
+
+# specific app stuff
+*.txt
+*.apk
+
+GCash**
+Money\ On\ Mobile**
+Zuum**
+OxigenWallet**
+mPAY**
+
+
+# latex stuff
+*.synctex.gz
+*.pdf
