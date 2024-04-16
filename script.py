@@ -1,19 +1,21 @@
 import os
 import sys
 
-output_txt = None
+
+out = None
+
 
 def valid_args(argc, argv):
-    global output_txt 
+    global out
 
     if argc != 5:
         return False
     if argv[1] != "-i" or argv[3] != "-o":
         return False
 
-    output_txt = open(argv[4], "w")
-    output_txt.close() # clear the file
-    output_txt = open(argv[4], "a")
+    out = open(argv[4], "w")
+    out.close() # clear the file
+    out = open(argv[4], "a")
     return argv[2]
 
 
@@ -30,7 +32,48 @@ def analyze_manifest(manifest):
 
 
 def analyze_smali(path): 
-    print("Path:", path)
+    printed_filename = False
+    printed_nums = []
+    line_num = 0
+    
+    cur = ""
+    neg1 = ""
+    neg2 = ""
+    neg3 = ""
+
+    file = open(path, "r")
+    for line in file:
+        neg3 = neg2
+        neg2 = neg1
+        neg1 = cur
+        cur = line
+        line_num += 1
+        if not vulnerable_line(cur):
+            continue
+
+        if not printed_filename:
+            out.write("\n"+path+"\n")
+            printed_filename = True
+        if line_num-3 not in printed_nums:
+            out.write(f"{line_num - 3}: {neg3}")
+            printed_nums.append(line_num-3)
+        if line_num-2 not in printed_nums:
+            out.write(f"{line_num - 2}: {neg2}")
+            printed_nums.append(line_num-2)
+        if line_num-1 not in printed_nums:
+            out.write(f"{line_num - 1}: {neg1}")
+            printed_nums.append(line_num-1)
+        if line_num not in printed_nums:
+            out.write(f"{line_num}: {cur}")
+            printed_nums.append(line_num)
+
+
+def vulnerable_line(line):
+    vulnerabilities = ["SslErrorHandler;->proceed()V"]
+    for v in vulnerabilities:
+        if v in line:
+            return True
+    return False
 
 
 def main():
@@ -39,7 +82,8 @@ def main():
         print("Usage: python script.py -i target-app.apk -o output.txt")
         return
 
-    # os.system("apktool d " + input_apk)
+    cmd = 'apktool d "' + input_apk + '"'
+    os.system(cmd)
 
     folder = input_apk[:-4] + "/"
     print("Folder:", folder)
