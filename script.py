@@ -22,11 +22,21 @@ def valid_args(argc, argv):
 def analyze_manifest(manifest):
     package = None
     manifest_file = open(manifest, "r")
+    # printed_filename = False
+
     for line in manifest_file:
+
         if "package" in line:
             start_idx = line.find("package=\"") + len("package=\"")
             end_idx = line.find("\"", start_idx)
             package = line[start_idx:end_idx]
+
+        # if 'android:exported="true"' in line:
+        #     if not printed_filename:
+        #         out.write(manifest + "\n")
+        #     out.write("\n" + line + "\n")
+
+
     manifest_file.close()
     return package
 
@@ -54,22 +64,28 @@ def analyze_smali(path):
         if not printed_filename:
             out.write("\n"+path+"\n")
             printed_filename = True
-        if line_num-3 not in printed_nums:
-            out.write(f"{line_num - 3}: {neg3}")
-            printed_nums.append(line_num-3)
-        if line_num-2 not in printed_nums:
-            out.write(f"{line_num - 2}: {neg2}")
-            printed_nums.append(line_num-2)
-        if line_num-1 not in printed_nums:
-            out.write(f"{line_num - 1}: {neg1}")
-            printed_nums.append(line_num-1)
+        # if line_num-3 not in printed_nums:
+        #     out.write(f"{line_num - 3}: {neg3}")
+        #     printed_nums.append(line_num-3)
+        # if line_num-2 not in printed_nums:
+        #     out.write(f"{line_num - 2}: {neg2}")
+        #     printed_nums.append(line_num-2)
+        # if line_num-1 not in printed_nums:
+        #     out.write(f"{line_num - 1}: {neg1}")
+        #     printed_nums.append(line_num-1)
         if line_num not in printed_nums:
             out.write(f"{line_num}: {cur}")
             printed_nums.append(line_num)
 
 
 def vulnerable_line(line):
-    vulnerabilities = ["SslErrorHandler;->proceed()V"]
+    vulnerabilities = [
+        "TrustManager",                 # Zuum and GCash              GCash
+        "checkServerTrusted",           # Zuum and GCash
+        "AllowAllHostnameVerifier",     # Zuum only                   Zuum
+        "SslErrorHandler",              # Oxigen only                 Oxigen
+        "http:",                        # all but Zuum, mPAY has 1    mPay
+    ]
     for v in vulnerabilities:
         if v in line:
             return True
