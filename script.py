@@ -49,7 +49,7 @@ def analyze_smali(path):
             out.write("\n"+path+"\n")
             printed_filename = True
         if line_num not in printed_nums:
-            out.write(f"{line_num}: {cur}")
+            out.write(f"{line_num}: {line}")
             printed_nums.append(line_num)
 
 
@@ -58,8 +58,8 @@ def vulnerable_line(line):
         "TrustManager",
         "checkServerTrusted",
         "AllowAllHostnameVerifier",
-        "SslErrorHandler"
-        "http:"
+        "SslErrorHandler",
+        "http:",
     ]
     for v in vulnerabilities:
         if v in line:
